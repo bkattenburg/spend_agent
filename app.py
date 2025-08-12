@@ -979,3 +979,243 @@ def _generate_invoice_data(
 
     return rows, current_invoice_total
 
+
+
+
+# --- Overridden per 2025-08-12 request: ALWAYS add KBCG, John Doe, and 10-mile Uber lines ---
+def _generate_invoice_data(
+    fee_count, expense_count, timekeeper_data, client_id, law_firm_id, invoice_desc,
+    billing_start_date, billing_end_date, task_activity_desc, major_task_codes,
+    max_hours_per_tk_per_day, include_block_billed, faker_instance
+):
+    rows = []
+    delta = billing_end_date - billing_start_date
+    num_days = max(1, delta.days + 1)
+
+    major_items = [item for item in task_activity_desc if item[0] in major_task_codes] if task_activity_desc else []
+    other_items = [item for item in task_activity_desc if item[0] not in major_task_codes] if task_activity_desc else []
+
+    current_invoice_total = 0.0
+    daily_hours_tracker = {}
+    MAX_DAILY_HOURS = max_hours_per_tk_per_day or 8
+
+    # --- Helper to pick a random date in range
+    def _rand_date_str():
+        off = random.randint(0, num_days - 1)
+        return (billing_start_date + datetime.timedelta(days=off)).strftime("%Y-%m-%d")
+
+    # --- Fees (randomly generated first)
+    for _ in range(int(fee_count or 0)):
+        if not task_activity_desc or not timekeeper_data:
+            break
+        tk_row = random.choice(timekeeper_data)
+        timekeeper_id = tk_row.get("TIMEKEEPER_ID", "")
+
+        if major_items and random.random() < 0.7:
+            task_code, activity_code, description = random.choice(major_items)
+        elif other_items:
+            task_code, activity_code, description = random.choice(other_items)
+        else:
+            break
+
+        line_item_date_str = _rand_date_str()
+        current_billed_hours = daily_hours_tracker.get((line_item_date_str, timekeeper_id), 0.0)
+        remaining_hours_capacity = float(MAX_DAILY_HOURS) - float(current_billed_hours)
+        if remaining_hours_capacity <= 0:
+            continue
+
+        hours_to_bill = round(random.uniform(0.5, min(8.0, remaining_hours_capacity)), 1)
+        if hours_to_bill <= 0:
+            continue
+
+        try:
+            hourly_rate = float(tk_row.get("RATE", 0.0))
+        except Exception:
+            hourly_rate = 0.0
+
+        line_item_total = round(hours_to_bill * hourly_rate, 2)
+        current_invoice_total += line_item_total
+        daily_hours_tracker[(line_item_date_str, timekeeper_id)] = current_billed_hours + hours_to_bill
+
+        # Optional replacements
+        try:
+            description = _replace_description_dates(description)
+        except Exception:
+            pass
+        try:
+            description = _replace_name_placeholder(description, faker_instance)
+        except Exception:
+            pass
+
+        rows.append({
+            "INVOICE_DESCRIPTION": invoice_desc,
+            "CLIENT_ID": client_id,
+            "LAW_FIRM_ID": law_firm_id,
+            "LINE_ITEM_DATE": line_item_date_str,
+            "TIMEKEEPER_NAME": tk_row.get("TIMEKEEPER_NAME", ""),
+            "TIMEKEEPER_CLASSIFICATION": tk_row.get("TIMEKEEPER_CLASSIFICATION", ""),
+            "TIMEKEEPER_ID": timekeeper_id,
+            "TASK_CODE": task_code,
+            "ACTIVITY_CODE": activity_code,
+            "EXPENSE_CODE": "",
+            "DESCRIPTION": description,
+            "HOURS": hours_to_bill,
+            "RATE": hourly_rate,
+            "LINE_ITEM_TOTAL": line_item_total
+        })
+
+    # --- Expenses
+    # Copying (E101)
+    e101_actual_count = random.randint(1, min(3, int(expense_count or 0))) if expense_count else 0
+    for _ in range(e101_actual_count):
+        hours = random.randint(1, 200)
+        rate = round(random.uniform(0.14, 0.25), 2)
+        line_item_total = round(hours * rate, 2)
+        current_invoice_total += line_item_total
+        rows.append({
+            "INVOICE_DESCRIPTION": invoice_desc,
+            "CLIENT_ID": client_id,
+            "LAW_FIRM_ID": law_firm_id,
+            "LINE_ITEM_DATE": _rand_date_str(),
+            "TIMEKEEPER_NAME": "",
+            "TIMEKEEPER_CLASSIFICATION": "",
+            "TIMEKEEPER_ID": "",
+            "TASK_CODE": "",
+            "ACTIVITY_CODE": "",
+            "EXPENSE_CODE": "E101",
+            "DESCRIPTION": "Copying",
+            "HOURS": hours,
+            "RATE": rate,
+            "LINE_ITEM_TOTAL": line_item_total
+        })
+
+    remaining_expense_count = (int(expense_count or 0) - e101_actual_count) if expense_count else 0
+    try:
+        OTHER_EXPENSE_DESCRIPTIONS
+        EXPENSE_CODES
+    except NameError:
+        OTHER_EXPENSE_DESCRIPTIONS = ["Postage", "Meals", "Parking"]
+        EXPENSE_CODES = {"Postage": "E106", "Meals": "E112", "Parking": "E108"}
+
+    for _ in range(max(0, remaining_expense_count)):
+        description = random.choice(OTHER_EXPENSE_DESCRIPTIONS)
+        expense_code = EXPENSE_CODES.get(description, "")
+        hours = 1
+        rate = round(random.uniform(25, 200), 2)
+        line_item_total = round(hours * rate, 2)
+        current_invoice_total += line_item_total
+        rows.append({
+            "INVOICE_DESCRIPTION": invoice_desc,
+            "CLIENT_ID": client_id,
+            "LAW_FIRM_ID": law_firm_id,
+            "LINE_ITEM_DATE": _rand_date_str(),
+            "TIMEKEEPER_NAME": "",
+            "TIMEKEEPER_CLASSIFICATION": "",
+            "TIMEKEEPER_ID": "",
+            "TASK_CODE": "",
+            "ACTIVITY_CODE": "",
+            "EXPENSE_CODE": expense_code,
+            "DESCRIPTION": description,
+            "HOURS": hours,
+            "RATE": rate,
+            "LINE_ITEM_TOTAL": line_item_total
+        })
+
+    # --- ALWAYS append the 3 mandated lines (even if similar ones already exist) -------------
+
+    # KBCG fee line: no forced TASK_CODE, ACTIVITY A107
+    forced_task = ""
+    forced_activity = "A107"
+    base_tk = _find_timekeeper_by_name(timekeeper_data, "Tom Delaganis") or (timekeeper_data[0] if timekeeper_data else None)
+    rate = float(base_tk.get("RATE", 250.0)) if base_tk else 250.0
+    hours = round(random.uniform(0.5, 3.0), 1)
+    total = round(hours * rate, 2)
+    current_invoice_total += total
+    kbcg_desc = ("Commenced data entry into the KBCG e-licensing portal for Piers Walter Vermont "
+                 "form 1005 application. Drafted deficiency notice to send to client re: same")
+    rows.append({
+        "INVOICE_DESCRIPTION": invoice_desc,
+        "CLIENT_ID": client_id,
+        "LAW_FIRM_ID": law_firm_id,
+        "LINE_ITEM_DATE": _rand_date_str(),
+        "TIMEKEEPER_NAME": "",  # will be forced below
+        "TIMEKEEPER_CLASSIFICATION": "",
+        "TIMEKEEPER_ID": "",
+        "TASK_CODE": forced_task,
+        "ACTIVITY_CODE": forced_activity,
+        "EXPENSE_CODE": "",
+        "DESCRIPTION": kbcg_desc,
+        "HOURS": hours,
+        "RATE": rate,
+        "LINE_ITEM_TOTAL": total
+    })
+
+    # John Doe fee line: L120/A102, block-billed
+    forced_task = "L120"
+    forced_activity = "A102"
+    base_tk = _find_timekeeper_by_name(timekeeper_data, "Ryan Kinsey") or (timekeeper_data[0] if timekeeper_data else None)
+    rate = float(base_tk.get("RATE", 250.0)) if base_tk else 250.0
+    hours = round(random.uniform(0.5, 3.0), 1)
+    total = round(hours * rate, 2)
+    current_invoice_total += total
+    jd_desc = ("Reviewed and summarized deposition transcript of John Doe; prepared exhibit index; "
+               "updated case chronology spreadsheet for attorney review")
+    rows.append({
+        "INVOICE_DESCRIPTION": invoice_desc,
+        "CLIENT_ID": client_id,
+        "LAW_FIRM_ID": law_firm_id,
+        "LINE_ITEM_DATE": _rand_date_str(),
+        "TIMEKEEPER_NAME": "",
+        "TIMEKEEPER_CLASSIFICATION": "",
+        "TIMEKEEPER_ID": "",
+        "TASK_CODE": forced_task,
+        "ACTIVITY_CODE": forced_activity,
+        "EXPENSE_CODE": "",
+        "DESCRIPTION": jd_desc,
+        "HOURS": hours,
+        "RATE": rate,
+        "LINE_ITEM_TOTAL": total
+    })
+
+    # 10-mile Uber ride expense: now fixed to E102
+    hours = 1
+    rate = round(random.uniform(25, 80), 2)
+    total = round(hours * rate, 2)
+    current_invoice_total += total
+    uber_desc = "10-mile Uber ride to client’s office"
+    rows.append({
+        "INVOICE_DESCRIPTION": invoice_desc,
+        "CLIENT_ID": client_id,
+        "LAW_FIRM_ID": law_firm_id,
+        "LINE_ITEM_DATE": _rand_date_str(),
+        "TIMEKEEPER_NAME": "",
+        "TIMEKEEPER_CLASSIFICATION": "",
+        "TIMEKEEPER_ID": "",
+        "TASK_CODE": "",
+        "ACTIVITY_CODE": "",
+        "EXPENSE_CODE": "E102",
+        "DESCRIPTION": uber_desc,
+        "HOURS": hours,
+        "RATE": rate,
+        "LINE_ITEM_TOTAL": total
+    })
+
+    # --- Apply timekeeper forcing rules to ALL rows -----------------------------------------
+    for r in rows:
+        desc_l = str(r.get("DESCRIPTION", "")).lower()
+        if "kbcg" in desc_l:
+            _force_timekeeper_on_row(r, "Tom Delaganis", timekeeper_data or [])
+        if "john doe" in desc_l:
+            _force_timekeeper_on_row(r, "Ryan Kinsey", timekeeper_data or [])
+
+    # --- Block-billing filtering (preserve John Doe line regardless) ------------------------
+    if not include_block_billed:
+        pruned = []
+        for r in rows:
+            desc = str(r.get("DESCRIPTION", ""))
+            if "; " in desc and "john doe" not in desc.lower():
+                continue
+            pruned.append(r)
+        rows = pruned
+
+    return rows, current_invoice_total
