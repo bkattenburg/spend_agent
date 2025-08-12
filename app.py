@@ -10,6 +10,44 @@ import re
 import smtplib
 
 
+# --- Helper prerequisites for Spend Agent ---
+try:
+    _find_timekeeper_by_name
+except NameError:
+    def _find_timekeeper_by_name(timekeepers, name):
+        if not timekeepers:
+            return None
+        for tk in timekeepers:
+            if str(tk.get("TIMEKEEPER_NAME", "")).strip().lower() == str(name).strip().lower():
+                return tk
+        return None
+
+try:
+    _force_timekeeper_on_row
+except NameError:
+    def _force_timekeeper_on_row(row, forced_name, timekeepers):
+        # Only applies to fee lines (no EXPENSE_CODE)
+        if row.get("EXPENSE_CODE"):
+            return row
+        tk = _find_timekeeper_by_name(timekeepers, forced_name)
+        if tk is None and timekeepers:
+            tk = timekeepers[0]
+        if tk is None:
+            row["TIMEKEEPER_NAME"] = forced_name
+            return row
+        row["TIMEKEEPER_NAME"] = forced_name
+        row["TIMEKEEPER_ID"] = tk.get("TIMEKEEPER_ID", row.get("TIMEKEEPER_ID", ""))
+        row["TIMEKEEPER_CLASSIFICATION"] = tk.get("TIMEKEEPER_CLASSIFICATION", row.get("TIMEKEEPER_CLASSIFICATION", ""))
+        try:
+            row["RATE"] = float(tk.get("RATE", row.get("RATE", 0.0)))
+            hours = float(row.get("HOURS", 0))
+            row["LINE_ITEM_TOTAL"] = round(hours * float(row["RATE"]), 2)
+        except Exception:
+            pass
+        return row
+
+
+
 # --- Helper: ensure mandated lines (KBCG, John Doe, Uber E102) ---
 def _ensure_mandatory_lines(rows, timekeeper_data, invoice_desc, client_id, law_firm_id, billing_start_date, billing_end_date):
     import datetime, random
