@@ -8,6 +8,66 @@ import os
 import logging
 import re
 import smtplib
+
+
+# --- Helper: ensure mandated lines (KBCG, John Doe, Uber E102) ---
+def _ensure_mandatory_lines(rows, timekeeper_data, invoice_desc, client_id, law_firm_id, billing_start_date, billing_end_date):
+    import datetime, random
+    def _rand_date_str():
+        delta = billing_end_date - billing_start_date
+        num_days = max(1, delta.days + 1)
+        off = random.randint(0, num_days - 1)
+        return (billing_start_date + datetime.timedelta(days=off)).strftime("%Y-%m-%d")
+
+    # KBCG fee line
+    base_tk = _find_timekeeper_by_name(timekeeper_data, "Tom Delaganis") or (timekeeper_data[0] if timekeeper_data else None)
+    rate = float(base_tk.get("RATE", 250.0)) if base_tk else 250.0
+    hours = round(random.uniform(0.5, 3.0), 1)
+    total = round(hours * rate, 2)
+    kbcg_desc = ("Commenced data entry into the KBCG e-licensing portal for Piers Walter Vermont "
+                 "form 1005 application. Drafted deficiency notice to send to client re: same")
+    rows.append({
+        "INVOICE_DESCRIPTION": invoice_desc, "CLIENT_ID": client_id, "LAW_FIRM_ID": law_firm_id,
+        "LINE_ITEM_DATE": _rand_date_str(), "TIMEKEEPER_NAME": "", "TIMEKEEPER_CLASSIFICATION": "", "TIMEKEEPER_ID": "",
+        "TASK_CODE": "", "ACTIVITY_CODE": "A107", "EXPENSE_CODE": "",
+        "DESCRIPTION": kbcg_desc, "HOURS": hours, "RATE": rate, "LINE_ITEM_TOTAL": total
+    })
+
+    # John Doe fee line
+    base_tk = _find_timekeeper_by_name(timekeeper_data, "Ryan Kinsey") or (timekeeper_data[0] if timekeeper_data else None)
+    rate = float(base_tk.get("RATE", 250.0)) if base_tk else 250.0
+    hours = round(random.uniform(0.5, 3.0), 1)
+    total = round(hours * rate, 2)
+    jd_desc = ("Reviewed and summarized deposition transcript of John Doe; prepared exhibit index; "
+               "updated case chronology spreadsheet for attorney review")
+    rows.append({
+        "INVOICE_DESCRIPTION": invoice_desc, "CLIENT_ID": client_id, "LAW_FIRM_ID": law_firm_id,
+        "LINE_ITEM_DATE": _rand_date_str(), "TIMEKEEPER_NAME": "", "TIMEKEEPER_CLASSIFICATION": "", "TIMEKEEPER_ID": "",
+        "TASK_CODE": "L120", "ACTIVITY_CODE": "A102", "EXPENSE_CODE": "",
+        "DESCRIPTION": jd_desc, "HOURS": hours, "RATE": rate, "LINE_ITEM_TOTAL": total
+    })
+
+    # 10-mile Uber ride expense (E102)
+    hours = 1
+    rate = round(random.uniform(25, 80), 2)
+    total = round(hours * rate, 2)
+    uber_desc = "10-mile Uber ride to client’s office"
+    rows.append({
+        "INVOICE_DESCRIPTION": invoice_desc, "CLIENT_ID": client_id, "LAW_FIRM_ID": law_firm_id,
+        "LINE_ITEM_DATE": _rand_date_str(), "TIMEKEEPER_NAME": "", "TIMEKEEPER_CLASSIFICATION": "", "TIMEKEEPER_ID": "",
+        "TASK_CODE": "", "ACTIVITY_CODE": "", "EXPENSE_CODE": "E102",
+        "DESCRIPTION": uber_desc, "HOURS": hours, "RATE": rate, "LINE_ITEM_TOTAL": total
+    })
+
+    # Enforce timekeepers for matching keywords
+    for r in rows:
+        d = str(r.get("DESCRIPTION","")).lower()
+        if "kbcg" in d:
+            _force_timekeeper_on_row(r, "Tom Delaganis", timekeeper_data or [])
+        if "john doe" in d:
+            _force_timekeeper_on_row(r, "Ryan Kinsey", timekeeper_data or [])
+    return rows
+
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
