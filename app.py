@@ -67,7 +67,7 @@ def _ensure_mandatory_lines(rows, timekeeper_data, invoice_desc, client_id, law_
     rows.append({
         "INVOICE_DESCRIPTION": invoice_desc, "CLIENT_ID": client_id, "LAW_FIRM_ID": law_firm_id,
         "LINE_ITEM_DATE": _rand_date_str(), "TIMEKEEPER_NAME": "", "TIMEKEEPER_CLASSIFICATION": "", "TIMEKEEPER_ID": "",
-        "TASK_CODE": "", "ACTIVITY_CODE": "A107", "EXPENSE_CODE": "",
+        "TASK_CODE": "L140", "ACTIVITY_CODE": "A107", "EXPENSE_CODE": "",
         "DESCRIPTION": kbcg_desc, "HOURS": hours, "RATE": rate, "LINE_ITEM_TOTAL": total
     })
 
