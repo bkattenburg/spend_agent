@@ -673,7 +673,7 @@ with tab1:
 
 with tab2:
     st.header("Generation Settings")
-    spend_agent = st.checkbox("Spend Agent", value=False, help="Ensures 2 Fee + 1 Expense Line Items are included for Spend Agent; Slider ounts will be adjusted.")
+    spend_agent = st.checkbox("Spend Agent", value=False, help="Ensures 2 Fee + 1 Expense Line Items are included for Spend Agent; Slider counts will be adjusted.")
     fees = st.slider("Number of Fee Line Items", min_value=1, max_value=200, value=20)
     expenses = st.slider("Number of Expense Line Items", min_value=0, max_value=50, value=5)
     max_daily_hours = st.number_input("Max Daily Timekeeper Hours:", min_value=1, max_value=24, value=16, step=1)
