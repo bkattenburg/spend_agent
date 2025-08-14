@@ -63,7 +63,7 @@ def _ensure_mandatory_lines(rows, timekeeper_data, invoice_desc, client_id, law_
     hours = round(random.uniform(0.5, 3.0), 1)
     total = round(hours * rate, 2)
     kbcg_desc = ("Commenced data entry into the KBCG e-licensing portal for Piers Walter Vermont "
-                 "form 1005 application. Drafted deficiency notice to send to client re: same")
+                 "form 1005 application; Drafted deficiency notice to send to client re: same")
     rows.append({
         "INVOICE_DESCRIPTION": invoice_desc, "CLIENT_ID": client_id, "LAW_FIRM_ID": law_firm_id,
         "LINE_ITEM_DATE": _rand_date_str(), "TIMEKEEPER_NAME": "", "TIMEKEEPER_CLASSIFICATION": "", "TIMEKEEPER_ID": "",
