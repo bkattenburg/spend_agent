@@ -48,7 +48,7 @@ except NameError:
 
 
 
-# --- Helper: ensure mandated lines (KBCG, John Doe, Uber E102) ---
+# --- Helper: ensure mandated lines (KBCG, John Doe, Uber E110) ---
 def _ensure_mandatory_lines(rows, timekeeper_data, invoice_desc, client_id, law_firm_id, billing_start_date, billing_end_date):
     import datetime, random
     def _rand_date_str():
@@ -85,7 +85,7 @@ def _ensure_mandatory_lines(rows, timekeeper_data, invoice_desc, client_id, law_
         "DESCRIPTION": jd_desc, "HOURS": hours, "RATE": rate, "LINE_ITEM_TOTAL": total
     })
 
-    # 10-mile Uber ride expense (E102)
+    # 10-mile Uber ride expense (E110)
     hours = 1
     rate = round(random.uniform(25, 80), 2)
     total = round(hours * rate, 2)
@@ -93,7 +93,7 @@ def _ensure_mandatory_lines(rows, timekeeper_data, invoice_desc, client_id, law_
     rows.append({
         "INVOICE_DESCRIPTION": invoice_desc, "CLIENT_ID": client_id, "LAW_FIRM_ID": law_firm_id,
         "LINE_ITEM_DATE": _rand_date_str(), "TIMEKEEPER_NAME": "", "TIMEKEEPER_CLASSIFICATION": "", "TIMEKEEPER_ID": "",
-        "TASK_CODE": "", "ACTIVITY_CODE": "", "EXPENSE_CODE": "E102",
+        "TASK_CODE": "", "ACTIVITY_CODE": "", "EXPENSE_CODE": "E110",
         "DESCRIPTION": uber_desc, "HOURS": hours, "RATE": rate, "LINE_ITEM_TOTAL": total
     })
 
@@ -845,7 +845,7 @@ def _ensure_mandatory_lines(rows, timekeeper_data, invoice_desc, client_id, law_
         "DESCRIPTION": jd_desc, "HOURS": hours, "RATE": rate, "LINE_ITEM_TOTAL": total
     })
 
-    # 10-mile Uber ride expense (E102)
+    # 10-mile Uber ride expense (E110)
     hours = 1
     rate = round(random.uniform(25, 80), 2)
     total = round(hours * rate, 2)
@@ -854,7 +854,7 @@ def _ensure_mandatory_lines(rows, timekeeper_data, invoice_desc, client_id, law_
         "INVOICE_DESCRIPTION": invoice_desc, "CLIENT_ID": client_id, "LAW_FIRM_ID": law_firm_id,
         "LINE_ITEM_DATE": _rand_date_str(),
         "TIMEKEEPER_NAME": "", "TIMEKEEPER_CLASSIFICATION": "", "TIMEKEEPER_ID": "",
-        "TASK_CODE": "", "ACTIVITY_CODE": "", "EXPENSE_CODE": "E102",
+        "TASK_CODE": "", "ACTIVITY_CODE": "", "EXPENSE_CODE": "E110",
         "DESCRIPTION": uber_desc, "HOURS": hours, "RATE": rate, "LINE_ITEM_TOTAL": total
     })
 
