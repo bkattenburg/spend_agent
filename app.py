@@ -649,12 +649,12 @@ with tab1:
     st.header("Invoice Details")
     col1, col2 = st.columns(2)
     with col1:
-        st.subheader("Billing Information")
-        client_id = st.text_input("Client ID:", DEFAULT_CLIENT_ID)
-        law_firm_id = st.text_input("Law Firm ID:", DEFAULT_LAW_FIRM_ID)
-        matter_number_base = st.text_input("Matter Number:", "2025-XXXXXX")
-        invoice_number_base = st.text_input("Invoice Number (Base):", "2025MMM-XXXXXX")
-                    LEDES_OPTIONS = ["1998B", "XML 2.1"]
+    st.subheader("Billing Information")
+    client_id = st.text_input("Client ID:", DEFAULT_CLIENT_ID)
+    law_firm_id = st.text_input("Law Firm ID:", DEFAULT_LAW_FIRM_ID)
+    matter_number_base = st.text_input("Matter Number:", "2025-XXXXXX")
+    invoice_number_base = st.text_input("Invoice Number (Base):", "2025MMM-XXXXXX")
+    LEDES_OPTIONS = ["1998B", "XML 2.1"]
 
     # Minimal: show a message when XML 2.1 is selected (no modal, no buttons)
     ledes_version = st.selectbox(
@@ -666,6 +666,7 @@ with tab1:
 
     if ledes_version == "XML 2.1":
         st.warning("This is not yet implemented - please use 1998B")
+
 
 with col2:
         st.subheader("Invoice Dates & Description")
