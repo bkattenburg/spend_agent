@@ -12,27 +12,32 @@ import smtplib
 # --- XML 2.1 "Coming Soon" modal support ---
 if "show_xml21_modal" not in st.session_state:
     st.session_state["show_xml21_modal"] = False
+if "ledes_version" not in st.session_state:
+    st.session_state["ledes_version"] = "1998B"  # default
+
+def _close_xml21_modal():
+    # Set selector back to 1998B and hide modal
+    st.session_state["ledes_version"] = "1998B"
+    st.session_state["show_xml21_modal"] = False
 
 # Prefer native st.dialog if available; otherwise fall back
 try:
-    # Streamlit >= 1.30 (approx) supports st.dialog
     @st.dialog("LEDES XML 2.1 — Coming Soon")
     def xml21_modal():
         st.markdown("### ✨ Coming Soon\nWe're putting the finishing touches on proper **LEDES XML 2.1** formatting.")
         st.markdown("- Export will follow the latest LEDES 2.1 schema\n- Validation built-in\n- PDF + XML bundling")
         st.snow()
         st.markdown("---")
-        if st.button("Darn"):
-            st.session_state["show_xml21_modal"] = False
+        # Use on_click to ensure state is set before rerun
+        if st.button("Darn", use_container_width=True, on_click=_close_xml21_modal):
             st.rerun()
 except Exception:
-    # Fallback for older Streamlit — lightweight pop + close button
     def xml21_modal():
         st.toast("LEDES XML 2.1 — Coming Soon!", icon="✨")
         st.balloons()
-        st.markdown("**LEDES XML 2.1** is coming soon. Click the button below to continue.")
-        if st.button("Darn"):
-            st.session_state["show_xml21_modal"] = False
+        st.markdown("**LEDES XML 2.1** is coming soon.")
+        if st.button("Darn", use_container_width=True):
+            _close_xml21_modal()
             try:
                 st.rerun()
             except Exception:
@@ -683,8 +688,24 @@ with tab1:
         law_firm_id = st.text_input("Law Firm ID:", DEFAULT_LAW_FIRM_ID)
         matter_number_base = st.text_input("Matter Number:", "2025-XXXXXX")
         invoice_number_base = st.text_input("Invoice Number (Base):", "2025MMM-XXXXXX")
-        ledes_version = st.selectbox("LEDES Version:", ["1998B", "XML 2.1"],
-        help="Please do not use XML 2.1 for now"
+        LEDES_OPTIONS = ["1998B", "XML 2.1"]
+
+# The key="ledes_version" lets us programmatically change the selection
+ledes_version = st.selectbox(
+    "LEDES Version:",
+    LEDES_OPTIONS,
+    key="ledes_version",
+    help="XML 2.1 export is temporarily disabled while we finalize formatting."
+)
+
+# Open the modal if XML 2.1 is chosen
+if st.session_state["ledes_version"] == "XML 2.1":
+    st.session_state["show_xml21_modal"] = True
+
+# Actually render the modal when flagged
+if st.session_state.get("show_xml21_modal"):
+    xml21_modal()
+
                                     )
         # NEW: Open the modal if XML 2.1 is chosen
 if ledes_version == "XML 2.1":
@@ -747,11 +768,10 @@ generate_button = st.button("Generate Invoice(s)")
 
 # --- Main app logic ---
 if generate_button:
-    # NEW: Block XML 2.1 generation entirely
-    if ledes_version == "XML 2.1":
+   if st.session_state["ledes_version"] == "XML 2.1":
         st.session_state["show_xml21_modal"] = True
         xml21_modal()
-        st.stop()  # Prevent any file creation or email sending
+        st.stop() 
     if timekeeper_data is None:
         st.warning("Please upload a valid timekeeper CSV file.")
     elif send_email and not recipient_email:
