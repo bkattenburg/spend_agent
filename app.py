@@ -654,7 +654,7 @@ with tab1:
         law_firm_id = st.text_input("Law Firm ID:", DEFAULT_LAW_FIRM_ID)
         matter_number_base = st.text_input("Matter Number:", "2025-XXXXXX")
         invoice_number_base = st.text_input("Invoice Number (Base):", "2025MMM-XXXXXX")
-                        LEDES_OPTIONS = ["1998B", "XML 2.1"]
+        LEDES_OPTIONS = ["1998B", "XML 2.1"]
     
     # Minimal: show a message when XML 2.1 is selected (no modal, no buttons)
     ledes_version = st.selectbox(
