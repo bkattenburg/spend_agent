@@ -671,9 +671,9 @@ with tab1:
         # --- Get the start and end dates of the previous month ---
         today = datetime.date.today()
         first_day_of_current_month = today.replace(day=1,
-        help="Service period start date used for lines and invoice header.")
+            help="Service period start date used for lines and invoice header.")
         last_day_of_previous_month = first_day_of_current_month - datetime.timedelta(days=1,
-        help="Service period end date; also used as INVOICE_DATE in 1998B export.")
+            help="Service period end date; also used as INVOICE_DATE in 1998B export.")
         first_day_of_previous_month = last_day_of_previous_month.replace(day=1)
         billing_start_date = st.date_input("Billing Start Date", value=first_day_of_previous_month)
         billing_end_date = st.date_input("Billing End Date", value=last_day_of_previous_month)
