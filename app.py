@@ -9,6 +9,34 @@ import logging
 import re
 import smtplib
 
+# --- XML 2.1 "Coming Soon" modal support ---
+if "show_xml21_modal" not in st.session_state:
+    st.session_state["show_xml21_modal"] = False
+
+# Prefer native st.dialog if available; otherwise fall back
+try:
+    # Streamlit >= 1.30 (approx) supports st.dialog
+    @st.dialog("LEDES XML 2.1 — Coming Soon")
+    def xml21_modal():
+        st.markdown("### ✨ Coming Soon\nWe're putting the finishing touches on proper **LEDES XML 2.1** formatting.")
+        st.markdown("- Export will follow the latest LEDES 2.1 schema\n- Validation built-in\n- PDF + XML bundling")
+        st.snow()
+        st.markdown("---")
+        if st.button("Darn"):
+            st.session_state["show_xml21_modal"] = False
+            st.rerun()
+except Exception:
+    # Fallback for older Streamlit — lightweight pop + close button
+    def xml21_modal():
+        st.toast("LEDES XML 2.1 — Coming Soon!", icon="✨")
+        st.balloons()
+        st.markdown("**LEDES XML 2.1** is coming soon. Click the button below to continue.")
+        if st.button("Darn"):
+            st.session_state["show_xml21_modal"] = False
+            try:
+                st.rerun()
+            except Exception:
+                pass
 
 # --- Helper prerequisites for Spend Agent ---
 try:
@@ -656,8 +684,16 @@ with tab1:
         matter_number_base = st.text_input("Matter Number:", "2025-XXXXXX")
         invoice_number_base = st.text_input("Invoice Number (Base):", "2025MMM-XXXXXX")
         ledes_version = st.selectbox("LEDES Version:", ["1998B", "XML 2.1"],
-        help="Please do not use XML 2.1 for now")
-        
+        help="Please do not use XML 2.1 for now"
+                                    )
+        # NEW: Open the modal if XML 2.1 is chosen
+if ledes_version == "XML 2.1":
+    st.session_state["show_xml21_modal"] = True
+
+# NEW: Actually render the modal when flagged
+if st.session_state.get("show_xml21_modal"):
+    xml21_modal()
+    
     with col2:
         st.subheader("Invoice Dates & Description")
         # --- Get the start and end dates of the previous month ---
