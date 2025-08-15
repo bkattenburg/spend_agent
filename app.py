@@ -723,7 +723,7 @@ if generate_button:
     if ledes_version == "XML 2.1":
         st.error("LEDES XML 2.1 is not yet implemented. Please switch to 1998B.")
         st.stop()
-if timekeeper_data is None:
+    if timekeeper_data is None:
         st.warning("Please upload a valid timekeeper CSV file.")
     elif send_email and not recipient_email:
         st.warning("Please provide a recipient email address to send the invoice.")
