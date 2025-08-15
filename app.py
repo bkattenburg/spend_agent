@@ -667,7 +667,7 @@ with tab1:
         help="Please do not use XML 2.1 for now")
         
     with col2:
-        st.subheader("Invoice Dates & Description"), help="Start and End Dates will automatically roll to the previous month at the start of the next month"
+        st.subheader("Invoice Dates & Description", help="Start and End Dates will automatically roll to the previous month at the start of the next month")
         # --- Get the start and end dates of the previous month ---
         today = datetime.date.today()
         first_day_of_current_month = today.replace(day=1,
