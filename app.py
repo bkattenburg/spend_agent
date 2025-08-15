@@ -45,6 +45,8 @@ except NameError:
             pass
         return row
 
+
+
 # --- Helper: ensure mandated lines (KBCG, John Doe, Uber E110) ---
 def _ensure_mandatory_lines(rows, timekeeper_data, invoice_desc, client_id, law_firm_id, billing_start_date, billing_end_date):
     import datetime, random
@@ -663,7 +665,7 @@ with tab1:
     )
     
     if ledes_version == "XML 2.1":
-        st.warning("This is not yet implemented - please use 1998B")
+    st.warning("This is not yet implemented - please use 1998B")
 
 
 with col2:
@@ -722,7 +724,7 @@ if generate_button:
     if ledes_version == "XML 2.1":
         st.error("LEDES XML 2.1 is not yet implemented. Please switch to 1998B.")
         st.stop()
-    if timekeeper_data is None:
+if timekeeper_data is None:
         st.warning("Please upload a valid timekeeper CSV file.")
     elif send_email and not recipient_email:
         st.warning("Please provide a recipient email address to send the invoice.")
