@@ -699,21 +699,20 @@ ledes_version = st.selectbox(
 )
 
     # Open the modal if XML 2.1 is chosen
-    if st.session_state["ledes_version"] == "XML 2.1":
-        st.session_state["show_xml21_modal"] = True
+if st.session_state["ledes_version"] == "XML 2.1":
+    st.session_state["show_xml21_modal"] = True
+
+# Actually render the modal when flagged
+if st.session_state.get("show_xml21_modal"):
+    xml21_modal()
     
-    # Actually render the modal when flagged
-    if st.session_state.get("show_xml21_modal"):
-        xml21_modal()
-    
-                                        )
-            # NEW: Open the modal if XML 2.1 is chosen
-    if ledes_version == "XML 2.1":
-        st.session_state["show_xml21_modal"] = True
-    
-    # NEW: Actually render the modal when flagged
-    if st.session_state.get("show_xml21_modal"):
-        xml21_modal()
+        # NEW: Open the modal if XML 2.1 is chosen
+if ledes_version == "XML 2.1":
+    st.session_state["show_xml21_modal"] = True
+
+# NEW: Actually render the modal when flagged
+if st.session_state.get("show_xml21_modal"):
+    xml21_modal()
     
     with col2:
         st.subheader("Invoice Dates & Description")
