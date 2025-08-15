@@ -690,7 +690,7 @@ with tab1:
         law_firm_id = st.text_input("Law Firm ID:", DEFAULT_LAW_FIRM_ID)
         matter_number_base = st.text_input("Matter Number:", "2025-XXXXXX")
         invoice_number_base = st.text_input("Invoice Number (Base):", "2025MMM-XXXXXX")
-                    LEDES_OPTIONS = ["1998B", "XML 2.1"]
+        LEDES_OPTIONS = ["1998B", "XML 2.1"]
 
 # Define the widget first so it's safe to modify its value later in this run
 ledes_version = st.selectbox(
@@ -713,7 +713,6 @@ if st.session_state.get("_reset_ledes_to_1998b"):
     st.session_state["ledes_version"] = "1998B"
     st.session_state["_reset_ledes_to_1998b"] = False
     st.rerun()
-
 
 with col2:
         st.subheader("Invoice Dates & Description")
