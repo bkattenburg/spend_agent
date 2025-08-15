@@ -747,6 +747,11 @@ generate_button = st.button("Generate Invoice(s)")
 
 # --- Main app logic ---
 if generate_button:
+    # NEW: Block XML 2.1 generation entirely
+    if ledes_version == "XML 2.1":
+        st.session_state["show_xml21_modal"] = True
+        xml21_modal()
+        st.stop()  # Prevent any file creation or email sending
     if timekeeper_data is None:
         st.warning("Please upload a valid timekeeper CSV file.")
     elif send_email and not recipient_email:
