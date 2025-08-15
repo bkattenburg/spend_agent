@@ -665,7 +665,7 @@ with tab1:
     )
     
     if ledes_version == "XML 2.1":
-    st.warning("This is not yet implemented - please use 1998B")
+        st.warning("This is not yet implemented - please use 1998B")
 
 with col2:
         st.subheader("Invoice Dates & Description")
