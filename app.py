@@ -661,7 +661,7 @@ with tab1:
                                    help="Defaults to Nelson and Murdock")
         matter_number_base = st.text_input("Matter Number:", "2025-XXXXXX",
                                           help="Change to match your matter number")
-        invoice_number_base = st.text_input("Invoice Number (Base):", "2025MMM-XXXXXX"
+        invoice_number_base = st.text_input("Invoice Number (Base):", "2025MMM-XXXXXX",
         help="Update to the Invoice Number you want. the app appends -1, -2, etc. for multiple invoices.")
         ledes_version = st.selectbox("LEDES Version:", ["1998B", "XML 2.1"],
         help="Please do not use XML 2.1 for now")
