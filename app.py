@@ -767,7 +767,7 @@ generate_button = st.button("Generate Invoice(s)")
 
 # --- Main app logic ---
 if generate_button:
-   if st.session_state["ledes_version"] == "XML 2.1":
+    if st.session_state["ledes_version"] == "XML 2.1":
         st.session_state["show_xml21_modal"] = True
         xml21_modal()
         st.stop() 
