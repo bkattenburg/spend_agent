@@ -9,42 +9,6 @@ import logging
 import re
 import smtplib
 
-# --- XML 2.1 "Coming Soon" modal support ---
-if "show_xml21_modal" not in st.session_state:
-    st.session_state["show_xml21_modal"] = False
-if "ledes_version" not in st.session_state:
-    st.session_state["ledes_version"] = "1998B"  # default
-
-def _close_xml21_modal():
-    # Don't set the selectbox value here (widget may not exist yet in this run).
-    # Instead set a flag and hide the modal; we'll handle the reset after the selectbox is created.
-    st.session_state["_reset_ledes_to_1998b"] = True
-    st.session_state["show_xml21_modal"] = False
-
-
-# Prefer native st.dialog if available; otherwise fall back
-try:
-    @st.dialog("LEDES XML 2.1 — Coming Soon")
-    def xml21_modal():
-        st.markdown("### ✨ Coming Soon\nWe're putting the finishing touches on proper **LEDES XML 2.1** formatting.")
-        st.markdown("- Export will follow the latest LEDES 2.1 schema\n- Validation built-in\n- PDF + XML bundling")
-        st.snow()
-        st.markdown("---")
-        # Use on_click to ensure state is set before rerun
-        if st.button("Darn", use_container_width=True, on_click=_close_xml21_modal):
-            st.rerun()
-except Exception:
-    def xml21_modal():
-        st.toast("LEDES XML 2.1 — Coming Soon!", icon="✨")
-        st.balloons()
-        st.markdown("**LEDES XML 2.1** is coming soon.")
-        if st.button("Darn", use_container_width=True):
-            _close_xml21_modal()
-            try:
-                st.rerun()
-            except Exception:
-                pass
-
 # --- Helper prerequisites for Spend Agent ---
 try:
     _find_timekeeper_by_name
@@ -690,29 +654,18 @@ with tab1:
         law_firm_id = st.text_input("Law Firm ID:", DEFAULT_LAW_FIRM_ID)
         matter_number_base = st.text_input("Matter Number:", "2025-XXXXXX")
         invoice_number_base = st.text_input("Invoice Number (Base):", "2025MMM-XXXXXX")
-        LEDES_OPTIONS = ["1998B", "XML 2.1"]
+                    LEDES_OPTIONS = ["1998B", "XML 2.1"]
 
-# Define the widget first so it's safe to modify its value later in this run
-ledes_version = st.selectbox(
-    "LEDES Version:",
-    LEDES_OPTIONS,
-    key="ledes_version",
-    help="XML 2.1 export is temporarily disabled while we finalize formatting."
-)
+    # Minimal: show a message when XML 2.1 is selected (no modal, no buttons)
+    ledes_version = st.selectbox(
+        "LEDES Version:",
+        LEDES_OPTIONS,
+        key="ledes_version",
+        help="XML 2.1 export is not implemented yet; please use 1998B."
+    )
 
-# If user chose XML 2.1, set modal flag
-if st.session_state["ledes_version"] == "XML 2.1":
-    st.session_state["show_xml21_modal"] = True
-
-# Render the modal when flagged
-if st.session_state.get("show_xml21_modal"):
-    xml21_modal()
-
-# Apply any pending reset AFTER the widget exists
-if st.session_state.get("_reset_ledes_to_1998b"):
-    st.session_state["ledes_version"] = "1998B"
-    st.session_state["_reset_ledes_to_1998b"] = False
-    st.rerun()
+    if ledes_version == "XML 2.1":
+        st.warning("This is not yet implemented - please use 1998B")
 
 with col2:
         st.subheader("Invoice Dates & Description")
@@ -767,11 +720,10 @@ generate_button = st.button("Generate Invoice(s)")
 
 # --- Main app logic ---
 if generate_button:
-    if st.session_state["ledes_version"] == "XML 2.1":
-        st.session_state["show_xml21_modal"] = True
-        xml21_modal()
-        st.stop() 
-    if timekeeper_data is None:
+    if ledes_version == "XML 2.1":
+        st.error("LEDES XML 2.1 is not yet implemented. Please switch to 1998B.")
+        st.stop()
+if timekeeper_data is None:
         st.warning("Please upload a valid timekeeper CSV file.")
     elif send_email and not recipient_email:
         st.warning("Please provide a recipient email address to send the invoice.")
