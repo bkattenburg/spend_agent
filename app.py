@@ -654,7 +654,7 @@ with tab1:
         law_firm_id = st.text_input("Law Firm ID:", DEFAULT_LAW_FIRM_ID)
         matter_number_base = st.text_input("Matter Number:", "2025-XXXXXX")
         invoice_number_base = st.text_input("Invoice Number (Base):", "2025MMM-XXXXXX")
-        LEDES_OPTIONS = ["1998B", "XML 2.1"]
+    LEDES_OPTIONS = ["1998B", "XML 2.1"]
     
     # Minimal: show a message when XML 2.1 is selected (no modal, no buttons)
     ledes_version = st.selectbox(
@@ -665,7 +665,8 @@ with tab1:
     )
     
     if ledes_version == "XML 2.1":
-        st.warning("This is not yet implemented - please use 1998B")
+    st.warning("This is not yet implemented - please use 1998B")
+
 
 with col2:
         st.subheader("Invoice Dates & Description")
@@ -723,7 +724,7 @@ if generate_button:
     if ledes_version == "XML 2.1":
         st.error("LEDES XML 2.1 is not yet implemented. Please switch to 1998B.")
         st.stop()
-    if timekeeper_data is None:
+if timekeeper_data is None:
         st.warning("Please upload a valid timekeeper CSV file.")
     elif send_email and not recipient_email:
         st.warning("Please provide a recipient email address to send the invoice.")
