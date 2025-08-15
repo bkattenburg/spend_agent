@@ -623,7 +623,7 @@ st.write("Generate and optionally email LEDES and PDF invoices.")
 with st.sidebar:
     st.header("File Upload")
     uploaded_timekeeper_file = st.file_uploader("Upload Timekeeper CSV (tk_info.csv)", type="csv",
-     help="Uploaded Timekeeper file must have columns: TIMEKEEPER_NAME, TIMEKEEPER_CLASSIFICATION, TIMEKEEPER_ID, RATE")
+     help="Timekeeper file must have columns: TIMEKEEPER_NAME, TIMEKEEPER_CLASSIFICATION, TIMEKEEPER_ID, RATE")
     timekeeper_data = _load_timekeepers(uploaded_timekeeper_file)
 
     use_custom_tasks = st.checkbox("Use Custom Line Item Details?", value=False,
@@ -631,7 +631,7 @@ with st.sidebar:
     uploaded_custom_tasks_file = None
     if use_custom_tasks:
         uploaded_custom_tasks_file = st.file_uploader("Upload Custom Line Items CSV (custom_details.csv)", type="csv",
-        help="Uploaded file must have columns: TASK_CODE, ACTIVITY_CODE, DESCRIPTION.)
+        help="Line Item must have columns: TASK_CODE, ACTIVITY_CODE, DESCRIPTION.)
     
     task_activity_desc = DEFAULT_TASK_ACTIVITY_DESC
     if use_custom_tasks and uploaded_custom_tasks_file:
