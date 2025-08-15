@@ -651,17 +651,15 @@ with tab1:
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Billing Information")
-        client_id = st.text_input("Client ID:", DEFAULT_CLIENT_ID,
-                                 help="Defauls to A Onit Inc")
-        law_firm_id = st.text_input("Law Firm ID:", DEFAULT_LAW_FIRM_ID,
-                                   help="Defaults to Nelson and Murdock")
+        client_id = st.text_input("Client ID:", DEFAULT_CLIENT_ID)
+        law_firm_id = st.text_input("Law Firm ID:", DEFAULT_LAW_FIRM_ID)
         matter_number_base = st.text_input("Matter Number:", "2025-XXXXXX")
         invoice_number_base = st.text_input("Invoice Number (Base):", "2025MMM-XXXXXX")
         ledes_version = st.selectbox("LEDES Version:", ["1998B", "XML 2.1"],
         help="Please do not use XML 2.1 for now")
         
     with col2:
-        st.subheader("Invoice Dates & Description", help="Start and End Dates will automatically roll to the previous month at the start of the next month")
+        st.subheader("Invoice Dates & Description")
         # --- Get the start and end dates of the previous month ---
         today = datetime.date.today()
         first_day_of_current_month = today.replace(day=1)
