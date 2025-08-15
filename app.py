@@ -688,33 +688,25 @@ with tab1:
         law_firm_id = st.text_input("Law Firm ID:", DEFAULT_LAW_FIRM_ID)
         matter_number_base = st.text_input("Matter Number:", "2025-XXXXXX")
         invoice_number_base = st.text_input("Invoice Number (Base):", "2025MMM-XXXXXX")
-        LEDES_OPTIONS = ["1998B", "XML 2.1"]
+                LEDES_OPTIONS = ["1998B", "XML 2.1"]
 
-# The key="ledes_version" lets us programmatically change the selection
-ledes_version = st.selectbox(
-    "LEDES Version:",
-    LEDES_OPTIONS,
-    key="ledes_version",
-    help="XML 2.1 export is temporarily disabled while we finalize formatting."
-)
+        # The key="ledes_version" lets us programmatically change the selection
+        ledes_version = st.selectbox(
+            "LEDES Version:",
+            LEDES_OPTIONS,
+            key="ledes_version",
+            help="XML 2.1 export is temporarily disabled while we finalize formatting."
+        )
 
-    # Open the modal if XML 2.1 is chosen
-if st.session_state["ledes_version"] == "XML 2.1":
-    st.session_state["show_xml21_modal"] = True
+        # Open the modal if XML 2.1 is chosen
+        if st.session_state["ledes_version"] == "XML 2.1":
+            st.session_state["show_xml21_modal"] = True
 
-# Actually render the modal when flagged
-if st.session_state.get("show_xml21_modal"):
-    xml21_modal()
-    
-        # NEW: Open the modal if XML 2.1 is chosen
-if ledes_version == "XML 2.1":
-    st.session_state["show_xml21_modal"] = True
+        # Actually render the modal when flagged
+        if st.session_state.get("show_xml21_modal"):
+            xml21_modal()
 
-# NEW: Actually render the modal when flagged
-if st.session_state.get("show_xml21_modal"):
-    xml21_modal()
-    
-    with col2:
+with col2:
         st.subheader("Invoice Dates & Description")
         # --- Get the start and end dates of the previous month ---
         today = datetime.date.today()
