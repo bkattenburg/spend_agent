@@ -16,9 +16,11 @@ if "ledes_version" not in st.session_state:
     st.session_state["ledes_version"] = "1998B"  # default
 
 def _close_xml21_modal():
-    # Set selector back to 1998B and hide modal
-    st.session_state["ledes_version"] = "1998B"
+    # Don't set the selectbox value here (widget may not exist yet in this run).
+    # Instead set a flag and hide the modal; we'll handle the reset after the selectbox is created.
+    st.session_state["_reset_ledes_to_1998b"] = True
     st.session_state["show_xml21_modal"] = False
+
 
 # Prefer native st.dialog if available; otherwise fall back
 try:
@@ -690,21 +692,28 @@ with tab1:
         invoice_number_base = st.text_input("Invoice Number (Base):", "2025MMM-XXXXXX")
                     LEDES_OPTIONS = ["1998B", "XML 2.1"]
 
-    # The key="ledes_version" lets us programmatically change the selection
-    ledes_version = st.selectbox(
-        "LEDES Version:",
-        LEDES_OPTIONS,
-        key="ledes_version",
-        help="XML 2.1 export is temporarily disabled while we finalize formatting."
-    )
+# Define the widget first so it's safe to modify its value later in this run
+ledes_version = st.selectbox(
+    "LEDES Version:",
+    LEDES_OPTIONS,
+    key="ledes_version",
+    help="XML 2.1 export is temporarily disabled while we finalize formatting."
+)
 
-    # Open the modal if XML 2.1 is chosen
-    if st.session_state["ledes_version"] == "XML 2.1":
-        st.session_state["show_xml21_modal"] = True
+# If user chose XML 2.1, set modal flag
+if st.session_state["ledes_version"] == "XML 2.1":
+    st.session_state["show_xml21_modal"] = True
 
-    # Actually render the modal when flagged
-    if st.session_state.get("show_xml21_modal"):
-        xml21_modal()
+# Render the modal when flagged
+if st.session_state.get("show_xml21_modal"):
+    xml21_modal()
+
+# Apply any pending reset AFTER the widget exists
+if st.session_state.get("_reset_ledes_to_1998b"):
+    st.session_state["ledes_version"] = "1998B"
+    st.session_state["_reset_ledes_to_1998b"] = False
+    st.rerun()
+
 
 with col2:
         st.subheader("Invoice Dates & Description")
