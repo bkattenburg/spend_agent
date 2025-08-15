@@ -622,16 +622,13 @@ st.write("Generate and optionally email LEDES and PDF invoices.")
 # --- Sidebar for user inputs ---
 with st.sidebar:
     st.header("File Upload")
-    uploaded_timekeeper_file = st.file_uploader("Upload Timekeeper CSV (tk_info.csv)", type="csv",
-     help="Timekeeper file must have columns: TIMEKEEPER_NAME, TIMEKEEPER_CLASSIFICATION, TIMEKEEPER_ID, RATE")
+    uploaded_timekeeper_file = st.file_uploader("Upload Timekeeper CSV (tk_info.csv)", type="csv")
     timekeeper_data = _load_timekeepers(uploaded_timekeeper_file)
 
-    use_custom_tasks = st.checkbox("Use Custom Line Item Details?", value=False,
-    help="Enable to upload custom Line Item details via CSV.")
+    use_custom_tasks = st.checkbox("Use Custom Line Item Details?", value=False)
     uploaded_custom_tasks_file = None
     if use_custom_tasks:
-        uploaded_custom_tasks_file = st.file_uploader("Upload Custom Line Items CSV (custom_details.csv)", type="csv",
-                                                      help="Line Item must have columns: TASK_CODE, ACTIVITY_CODE, DESCRIPTION.")
+        uploaded_custom_tasks_file = st.file_uploader("Upload Custom Line Items CSV (custom_details.csv)", type="csv")
     
     task_activity_desc = DEFAULT_TASK_ACTIVITY_DESC
     if use_custom_tasks and uploaded_custom_tasks_file:
@@ -641,8 +638,7 @@ with st.sidebar:
 
 # This checkbox controls the visibility of the email tab
 st.subheader("Output & Delivery Options")
-send_email = st.checkbox("Send Invoices via Email", value=True,
-help="If enabled, generated files will be emailed to the recipient you provide in Email Configurations tab.")
+send_email = st.checkbox("Send Invoices via Email", value=True)
 
 # Dynamically create tabs based on the 'send_email' checkbox
 if send_email:
@@ -659,10 +655,8 @@ with tab1:
                                  help="Defauls to A Onit Inc")
         law_firm_id = st.text_input("Law Firm ID:", DEFAULT_LAW_FIRM_ID,
                                    help="Defaults to Nelson and Murdock")
-        matter_number_base = st.text_input("Matter Number:", "2025-XXXXXX",
-                                          help="Change to match your matter number")
-        invoice_number_base = st.text_input("Invoice Number (Base):", "2025MMM-XXXXXX",
-        help="Update to the Invoice Number you want. the app appends -1, -2, etc. for multiple invoices.")
+        matter_number_base = st.text_input("Matter Number:", "2025-XXXXXX")
+        invoice_number_base = st.text_input("Invoice Number (Base):", "2025MMM-XXXXXX")
         ledes_version = st.selectbox("LEDES Version:", ["1998B", "XML 2.1"],
         help="Please do not use XML 2.1 for now")
         
@@ -670,10 +664,8 @@ with tab1:
         st.subheader("Invoice Dates & Description", help="Start and End Dates will automatically roll to the previous month at the start of the next month")
         # --- Get the start and end dates of the previous month ---
         today = datetime.date.today()
-        first_day_of_current_month = today.replace(day=1,
-            help="Service period start date used for lines and invoice header.")
-        last_day_of_previous_month = first_day_of_current_month - datetime.timedelta(days=1,
-            help="Service period end date; also used as INVOICE_DATE in 1998B export.")
+        first_day_of_current_month = today.replace(day=1)
+        last_day_of_previous_month = first_day_of_current_month - datetime.timedelta(days=1)
         first_day_of_previous_month = last_day_of_previous_month.replace(day=1)
         billing_start_date = st.date_input("Billing Start Date", value=first_day_of_previous_month)
         billing_end_date = st.date_input("Billing End Date", value=last_day_of_previous_month)
@@ -688,16 +680,12 @@ with tab2:
     spend_agent = st.checkbox("Spend Agent", value=False, help="Ensures 2 Fee + 1 Expense Line Items are included for Spend Agent; Slider counts will be adjusted.")
     fees = st.slider("Number of Fee Line Items", min_value=1, max_value=200, value=20)
     expenses = st.slider("Number of Expense Line Items", min_value=0, max_value=50, value=5)
-    max_daily_hours = st.number_input("Max Daily Timekeeper Hours:", min_value=1, max_value=24, value=16, step=1,
-    help="Cap hours per timekeeper per day across generated lines.")
+    max_daily_hours = st.number_input("Max Daily Timekeeper Hours:", min_value=1, max_value=24, value=16, step=1)
     
     st.subheader("Output Settings")
-    include_block_billed = st.checkbox("Include Block Billed Line Items", value=True,
-    help="If off, any lines whose description contains multiple tasks (semicolon-separated) are removed.")
-    include_pdf = st.checkbox("Include PDF Invoice", value=True,
-    help="Generate a PDF alongside the LEDES file.")
-    generate_multiple = st.checkbox("Generate Multiple Invoices",
-    help="Create more than one invoice. You can optionally backfill prior periods.")
+    include_block_billed = st.checkbox("Include Block Billed Line Items", value=True)
+    include_pdf = st.checkbox("Include PDF Invoice", value=True)
+    generate_multiple = st.checkbox("Generate Multiple Invoices", help="Create more than one invoice. You can optionally backfill prior periods.")
     num_invoices = 1
     multiple_periods = False
     if generate_multiple:
