@@ -631,7 +631,7 @@ with st.sidebar:
     uploaded_custom_tasks_file = None
     if use_custom_tasks:
         uploaded_custom_tasks_file = st.file_uploader("Upload Custom Line Items CSV (custom_details.csv)", type="csv",
-        help="Line Item must have columns: TASK_CODE, ACTIVITY_CODE, DESCRIPTION.)
+                                                      help="Line Item must have columns: TASK_CODE, ACTIVITY_CODE, DESCRIPTION.")
     
     task_activity_desc = DEFAULT_TASK_ACTIVITY_DESC
     if use_custom_tasks and uploaded_custom_tasks_file:
